@@ -33,7 +33,7 @@
 		ADAA27C4231BC02B00365194 /* light_background.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = light_background.pdf; sourceTree = "<group>"; };
 		ADAA27C5231BC02B00365194 /* dark_background.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = dark_background.pdf; sourceTree = "<group>"; };
 		ADAA27CD231BC87F00365194 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
-		D787AB822C2AF80300E6ACA1 /* OpenWeatherAPIManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = OpenWeatherAPIManager.swift; path = Clima/OpenWeatherAPIManager.swift; sourceTree = SOURCE_ROOT; };
+		D787AB822C2AF80300E6ACA1 /* OpenWeatherAPIManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = OpenWeatherAPIManager.swift; path = Clima/Services/OpenWeatherAPIManager.swift; sourceTree = SOURCE_ROOT; };
 		D787AB842C2B1AB900E6ACA1 /* WeatherResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WeatherResponse.swift; path = Clima/WeatherResponse.swift; sourceTree = SOURCE_ROOT; };
 		D787AB862C2C0D2A00E6ACA1 /* WeatherModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WeatherModel.swift; path = Clima/WeatherModel.swift; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
@@ -69,6 +69,7 @@
 		ADAA27AF231BBFAF00365194 /* Clima */ = {
 			isa = PBXGroup;
 			children = (
+				D738713D2C4FF6D800707D42 /* Services */,
 				ADAA27B0231BBFAF00365194 /* AppDelegate.swift */,
 				ADAA27B2231BBFAF00365194 /* SceneDelegate.swift */,
 				ADAA27CA231BC3FA00365194 /* Model */,
@@ -102,11 +103,18 @@
 		ADAA27CA231BC3FA00365194 /* Model */ = {
 			isa = PBXGroup;
 			children = (
-				D787AB822C2AF80300E6ACA1 /* OpenWeatherAPIManager.swift */,
 				D787AB842C2B1AB900E6ACA1 /* WeatherResponse.swift */,
 				D787AB862C2C0D2A00E6ACA1 /* WeatherModel.swift */,
 			);
 			path = Model;
+			sourceTree = "<group>";
+		};
+		D738713D2C4FF6D800707D42 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				D787AB822C2AF80300E6ACA1 /* OpenWeatherAPIManager.swift */,
+			);
+			path = Services;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
