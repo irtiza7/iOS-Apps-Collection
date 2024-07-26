@@ -5,20 +5,10 @@
 //  Created by Dev on 7/23/24.
 //
 
-/*
- - Import the CoreLocation Package
- - Create a CLLocation object in the VC
- - Call the CLLocation object’s requestWhenInUseAuthorization() method
- - Set object’s delegate property to self  and conform to the CLLocationManagerDelegate by defining locationManager(: didUpdateLocations) and locationManager(: didFailWithError) methods
- - Also add the “Privacy - Location Usage Description” with suitable message in the Info.plist of project
- - Call the object’s updateLocations() method whenever the location is needed
- - The latitude and longitude will be accessible in the locationManager(: didUpdateLocations) method via locations property
- - Call the object’s stopUpdatingLocatios() method if the locations are found
- */
-
 import SwiftUI
 import UIKit
 import CoreLocation
+import Combine
 
 final class MainViewModel: NSObject, ObservableObject  {
     @Published var cityList: [City] = []
@@ -27,14 +17,35 @@ final class MainViewModel: NSObject, ObservableObject  {
     
     private let weatherApiManager = WeatherApiManager.shared
     private let locationManager = CLLocationManager()
+    private var cancellable: AnyCancellable?
     
+    public var delegate: MainViewDelegate?
     
     override init() {
         super.init()
+        
         weatherApiManager.delegate = self
         locationManager.delegate = self
         locationManager.requestWhenInUseAuthorization()
         locationManager.requestLocation()
+        
+        initSubscriptions()
+    }
+    
+    convenience init(delegate: MainViewDelegate) {
+        self.init()
+        self.delegate = delegate
+    }
+    
+    deinit{
+        self.cancellable?.cancel()
+    }
+    
+    func initSubscriptions() {
+        self.cancellable = self.$weather.sink(receiveValue: { weather in
+            guard let weather = weather else {return}
+            self.delegate?.setAppearenceMode(weather: weather)
+        })
     }
     
     func updateLocationAndWeather() {
@@ -42,14 +53,17 @@ final class MainViewModel: NSObject, ObservableObject  {
     }
     
     func getWeather() {
-        guard let currentLocation = self.userCurrentLocationCoordinates else {return}
-        weatherApiManager.fetchWeather(lat: currentLocation.0, long: currentLocation.1)
+        guard let (lat, lon) = self.userCurrentLocationCoordinates else {return}
+        weatherApiManager.fetchWeather(lat: lat, long: lon)
+//        weatherApiManager.fetchWeather(city: "Lahore") //TODO: - remove
     }
     
     func fetchCities(forTerm term: String) {
         Task { await weatherApiManager.fetchCities(searchTerm: term)}
     }
 }
+
+// MARK: - Delegate Methods
 
 extension MainViewModel: MainViewModelDelegate {
     func didUpdateCityList(cityList: [CityDecodable]) {
@@ -69,6 +83,8 @@ extension MainViewModel: MainViewModelDelegate {
     }
 }
 
+// MARK: - CLLocationManagerDelegate Methods
+
 extension MainViewModel: CLLocationManagerDelegate {
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         guard let lastLocation = locations.last else {return}
@@ -83,4 +99,9 @@ extension MainViewModel: CLLocationManagerDelegate {
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
         print(error)
     }
+}
+
+
+protocol MainViewDelegate {
+    mutating func setAppearenceMode(weather: Weather)
 }

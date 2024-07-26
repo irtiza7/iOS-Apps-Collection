@@ -7,30 +7,14 @@
 
 import Foundation
 
-struct WeatherResponse: Decodable {
-    let name: String
-    let weather: [WeatherObject]
-    let main: Main
-}
-
-struct WeatherObject: Decodable {
-    let id: Int
-    let main: String
-    let description: String
-    let icon: String
-}
-
-struct Main: Decodable {
-    let temp: Float
-    let feels_like: Float
-}
-
 struct Weather {
-    var city: String
-    var reading: Float
-    var conditionId: Int
+    let city: String
+    let reading: Float
+    let conditionId: Int
+    let sunrise: Int
+    let sunset: Int
     var day: String?
-    
+
     var readingString: String {
         String(format: "%.0f°", reading)
     }

@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Combine
 
 struct MainView: View {
     @ObservedObject private var mainViewModel = MainViewModel()
@@ -13,6 +14,10 @@ struct MainView: View {
     @State var isDarkMode: Bool = false
     @State var searchTerm: String = ""
     @State var daysTemperature: [Weather]?
+    
+    init() {
+        mainViewModel.delegate = self
+    }
     
     var body: some View {
         NavigationStack{
@@ -26,7 +31,7 @@ struct MainView: View {
         }
         .searchable(text: $searchTerm) {
             ForEach(mainViewModel.cityList) { city in
-                Text(city.name).searchCompletion(city.name)
+                Text(city.name)
             }
         }
         .onChange(of: searchTerm) { newValue in
@@ -35,19 +40,38 @@ struct MainView: View {
             }
         }
         .onAppear(){
-            setAppearenceMode()
             mainViewModel.updateLocationAndWeather()
         }
     }
-    
-    func setAppearenceMode() {
-        let currentHour = Calendar.current.component(.hour, from: Date())
+}
+
+extension MainView: MainViewDelegate {
+    mutating func setAppearenceMode(weather: Weather) {
+        let dateFormatter = DateFormatter()
+        dateFormatter.timeStyle = DateFormatter.Style.short
+        dateFormatter.dateStyle = DateFormatter.Style.none
+        dateFormatter.timeZone = .current
         
-        if  currentHour < 6 {
-            self.isDarkMode = true
-        } else if currentHour > 18 {
-            self.isDarkMode = true
+        let sunriseDateAndTime = Date(timeIntervalSince1970: Double(weather.sunrise))
+        let sunsetDateAndTime = Date(timeIntervalSince1970: Double(weather.sunset))
+        
+        let sunriseTime = dateFormatter.string(from: sunriseDateAndTime)
+        let sunsetTime = dateFormatter.string(from: sunsetDateAndTime)
+        
+        guard let sunriseHourInt = Int(sunriseTime.components(separatedBy: ":")[0]),
+              var sunsetHourInt = Int(sunsetTime.components(separatedBy: ":")[0]) else {return}
+        
+        sunsetHourInt += 12 // Converting 12 hours time into 24 hours time
+        let currentHourInt = Calendar.current.component(.hour, from: Date())
+        
+        print(sunriseHourInt, sunsetHourInt, currentHourInt)
+        
+        if  currentHourInt < sunriseHourInt {
+            isDarkMode = true
+        } else if currentHourInt > sunsetHourInt {
+            isDarkMode = true
         }
+        print("isDarkMode: \(isDarkMode)")
     }
 }
 

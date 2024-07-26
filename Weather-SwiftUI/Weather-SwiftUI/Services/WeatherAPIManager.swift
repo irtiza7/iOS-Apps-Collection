@@ -24,19 +24,12 @@ class WeatherApiManager: ObservableObject {
         guard let url = URL(string: "\(baseUrlForGeoApi)?q=\(searchTerm)&limit=\(limit)&appid=\(apiKey)") else {
             return
         }
-        
         do {
             let cities = try await makeRequestForCities(url)
             self.delegate?.didUpdateCityList(cityList: cities)
         } catch {
             print(error)
         }
-    }
-    
-    private func makeRequestForCities(_ url: URL) async throws -> [CityDecodable] {
-        let (data, _) = try await URLSession.shared.data(from: url)
-        let decodedCities = try JSONDecoder().decode([CityDecodable].self, from: data)
-        return decodedCities
     }
     
     func fetchWeather(city: String) {
@@ -53,6 +46,12 @@ class WeatherApiManager: ObservableObject {
     
     // MARK: - Private Methods
     
+    private func makeRequestForCities(_ url: URL) async throws -> [CityDecodable] {
+        let (data, _) = try await URLSession.shared.data(from: url)
+        let decodedCities = try JSONDecoder().decode([CityDecodable].self, from: data)
+        return decodedCities
+    }
+    
     private func fetchData(_ url: URL) {
         let task = URLSession.shared.dataTask(with: url) { data, response, error in
             guard error == nil else {
@@ -62,7 +61,11 @@ class WeatherApiManager: ObservableObject {
             guard let data = data else {return}
             guard let parsedWeatherObject = self.parseJSON(data: data) else {return}
             
-            let weather = Weather(city: parsedWeatherObject.name, reading: parsedWeatherObject.main.temp, conditionId: parsedWeatherObject.weather[0].id)
+            let weather = Weather(city: parsedWeatherObject.name,
+                                  reading: parsedWeatherObject.main.temp,
+                                  conditionId: parsedWeatherObject.weather[0].id,
+                                  sunrise: parsedWeatherObject.sys.sunrise,
+                                  sunset: parsedWeatherObject.sys.sunset)
             self.delegate?.didUpdateWeather(weather: weather)
         }
         task.resume()
