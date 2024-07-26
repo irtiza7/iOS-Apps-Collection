@@ -8,6 +8,12 @@
 import Foundation
 import SwiftUI
 
+
+protocol MainViewModelDelegate {
+    func didUpdateCityList(cityList: [CityDecodable])
+    func didUpdateWeather(weather: Weather)
+}
+
 class WeatherApiManager: ObservableObject {
     
     static let shared = WeatherApiManager()
@@ -82,9 +88,4 @@ class WeatherApiManager: ObservableObject {
         }
     }
     
-}
-
-protocol MainViewModelDelegate {
-    func didUpdateCityList(cityList: [CityDecodable])
-    func didUpdateWeather(weather: Weather)
 }
